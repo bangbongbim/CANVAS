@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        canvas{
+            background: #eee;
+        }
+        video{
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Video</h1>
+    <video class="video" src="./sample.mp4" autoplay muted lood></video>
+    <canvas class="canvas" width="600" height="400"></canvas>    
+
+    <div class="btns">
+        <button class="btn" data-color="red">R</button>
+        <button class="btn" data-color="green">G</button>
+        <button class="btn" data-color="blue">B</button>
+        <button class="btn" data-color="">Reset</button>
+        
+    </div>
+    
+    <script>
+        const btnsElem = document.querySelector('.btns')
+        const canvas = document.querySelector('.canvas')
+        const ctx = canvas.getContext('2d')
+        let conPlayState = false;
+
+
+
+        ctx.textAlign="center"
+        ctx.font="bold 50px serif"
+        ctx.fillText('비디오 로딩 중 . . .',300,200)
+
+        const videoElem = document.querySelector('.video')
+        videoElem.addEventListener('canplaythrough',render)
+
+        const messages = [
+            {time :1,message:'1 ㅋㅋ',x:100,y:100},
+            {time :2,message:'2 ㅋㅋ',x:200,y:200},
+            {time :3,message:'3 ㅋㅋ',x:300,y:300}
+
+        ]
+
+        let imageData
+        const paricles=[]
+        let particle
+        let colorValue
+        let leng
+
+        function render(){
+            ctx.drawImage(videoElem,0,0,600,400)
+            imageData = ctx.getImageData(0,0,600,400)
+
+            //픽셀 개수 구하는고
+            leng=imageData.data.length/4
+            
+            for(let i = 0 ;i<leng;i++){
+                switch(colorValue){
+                    case "red":
+                        imageData.data[i*4+0]=255;
+                        break;
+                    case "green":
+                        imageData.data[i*4+1]=255
+                        break;
+                    case "blue":
+                        imageData.data[i*4+2]=255
+                        break;
+                }
+            }
+
+            // for(let i =0 ; i<messages.length ; i++){
+            //     // currentTIme : 비디오 현재 시간 
+            //     if(videoElem.currentTime > messages[i].time){
+            //         ctx.fillText(messages[i].message,messages[i].x,messages[i].y)
+            //     }
+            // }
+            ctx.putImageData(imageData,0,0)
+            requestAnimationFrame(render)
+        }
+
+        btnsElem.addEventListener('click',function(e){
+            colorValue = e.target.getAttribute('data-color')
+        })
+    </script>
+</body>
+</html>
