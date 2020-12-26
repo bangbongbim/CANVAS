@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .canvas {
+            background: #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Interaction</h1>
+    <canvas class="canvas" width="600" height="400">
+        <script src="./utils.js"></script>
+        <script src="./box.js"></script>
+        <script src="./panel.js"></script>
+        <script>
+            const canvas = document.querySelector('.canvas')
+            const ctx = canvas.getContext('2d')
+            let boxes = []
+            const mousePos = { x: 0, y: 0 }
+            let selectedBox;
+            let oX
+            let oY
+            let panel;
+            let step; // 애플리케이션의 상태 1 ~ 4
+
+            ctx.font = "bold 30px serif"
+
+
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let box;
+                for (let i = 0; i < boxes.length; i++) {
+                    box = boxes[i]
+                    // box.x+=box.speed;
+                    // if(box.x > canvas.width){
+                    //     box.x=-100
+                    // }
+                    box.draw();
+                }
+                switch (step) {
+                    case 1:
+
+                        for (let i = 0; i < boxes.length; i++) {
+                            box = boxes[i]
+                            box.x += box.speed;
+                            if (box.x > canvas.width) {
+                                box.x = -100
+                            }
+                            box.draw();
+                        }
+
+                        break;
+
+                    case 2:
+                        // panel.scale += 0.02
+                        //현재크기 = 현재크기 +(목표크기 - 현재크기 )* 0.1
+                        // 부드럽게 커지게 하는 부분
+                        panel.scale = panel.scale+(1-panel.scale) * 0.1
+
+                        // 각도  =  스케일 * 720
+                        panel.angle = panel.scale*720;
+                        panel.draw();
+                        if(panel.scale >= 0.999){
+                            panel.scale = 1;
+                            panel.angle= 720;
+                            step=3;
+                        } 
+             
+                        break;
+
+
+                    case 3:
+                        panel.draw()
+                        panel.showContent();
+                        break;
+
+                }
+                requestAnimationFrame(render)
+            }
+            let tempX, tempY, tempSpeed;
+
+            function init() {
+                step = 1;
+                oX = canvas.width / 2
+                oY = canvas.height / 2
+                for (let i = 0; i < 10; i++) {
+                    tempX = Math.random() * canvas.width * 0.8
+                    tempY = Math.random() * canvas.height * 0.8
+                    tempSpeed = Math.random() * 4 + 1
+                    boxes.push(new Box(i, tempX, tempY, tempSpeed))
+
+                }
+
+                panel = new Panel()
+                render()
+            }
+
+
+            canvas.addEventListener('click', e => {
+                mousePos.x = e.layerX;
+                mousePos.y = e.layerY;
+
+
+                let box;
+                for (let i = 0; i < boxes.length; i++) {
+                    box = boxes[i]
+                    if (mousePos.x > box.x && mousePos.x < box.x + box.width &&
+                        mousePos.y > box.y && mousePos.y < box.y + box.height) {
+                        selectedBox = box;
+                    }
+                }
+
+                if (selectedBox && step ===1) {
+                    console.log(selectedBox.index)
+                    
+                    step = 2;
+                }
+                else if(step === 3){
+                    step = 1
+                    selectedBox =0
+                    panel.scale  = 0;
+                }
+
+            })
+            init()
+
+        </script>
+</body>
+
+</html>
